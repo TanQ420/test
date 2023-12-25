@@ -1,2 +1,1 @@
-streamlit==1.1.0
-speech_recognition
+flask==2.0.2
