@@ -1,30 +1,27 @@
 import streamlit as st
-import os
-import speech_recognition as sr
-import tempfile
 
-st.title('Speech to Text')
+def count_characters(text):
+    return len(text)
 
-uploaded_files = st.file_uploader("Choose files", accept_multiple_files=True)
+def split_by_length(text, split_length):
+    return [text[i:i + split_length] for i in range(0, len(text), split_length)]
 
-for uploaded_file in uploaded_files:
-    with tempfile.NamedTemporaryFile(delete=False) as fp:
-        fp.write(uploaded_file.getvalue())
-    r = sr.Recognizer()
+def main():
+    st.title("文字数カウンター & 分割ツール")
+    input_text = st.text_area("文章を入力してください")
+    
+    # Split length input
+    split_length = st.number_input("分割する文字数を入力してください", min_value=1, step=1)
 
-    try:
-        with sr.AudioFile(fp.name) as source:
-            audio = r.record(source)
-            text = r.recognize_google(audio, language="ja-JP")
+    if st.button("カウント"):
+        character_count = count_characters(input_text)
+        st.write("入力された文章の文字数は", character_count, "です")
 
-        st.write(f'File {uploaded_file.name}:')
-        st.write(text)
-        st.success('Finished processing')
-        os.unlink(fp.name)  # remove temp file
+    if st.button("分割"):
+        split_text = split_by_length(input_text, split_length)
+        st.write("入力された文章を", split_length, "文字で分割した結果は以下のとおりです:")
+        for i, text_chunk in enumerate(split_text):
+            st.write(f"チャンク {i+1}: {text_chunk}")
 
-    except Exception as e:
-        st.write('Failed to process the audio')
-        st.error(f'Error: {e}')
-
-        if os.path.exists(fp.name): # if file still exists, remove it
-            os.unlink(fp.name)
+if __name__ == "__main__":
+    main()
